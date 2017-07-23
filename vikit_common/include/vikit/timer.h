@@ -11,7 +11,7 @@ namespace vk
 class Timer
 {
 private:
-  timeval start_time_;
+  timespec start_time_; // timeval was before
   double time_;
   double accumulated_;
 public:
@@ -30,21 +30,24 @@ public:
   inline void start()
   {
     accumulated_ = 0.0;
-    gettimeofday(&start_time_, NULL);
+    //gettimeofday(&start_time_, NULL);
+    clock_gettime(CLOCK_MONOTONIC, &start_time_);
   }
 
   inline void resume()
   {
-    gettimeofday(&start_time_, NULL);
+    //gettimeofday(&start_time_, NULL);
+    clock_gettime(CLOCK_MONOTONIC, &start_time_);
   }
 
   inline double stop()
   {
-    timeval end_time;
-    gettimeofday(&end_time, NULL);
+    timespec end_time;
+    //gettimeofday(&end_time, NULL);
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
     long seconds  = end_time.tv_sec  - start_time_.tv_sec;
-    long useconds = end_time.tv_usec - start_time_.tv_usec;
-    time_ = ((seconds) + useconds*0.000001) + accumulated_;
+    long nseconds = end_time.tv_nsec - start_time_.tv_nsec;
+    time_ = ((seconds) + nseconds*0.000000001) + accumulated_;
     accumulated_ = time_;
     return time_;
   }
